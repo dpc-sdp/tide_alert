@@ -1,7 +1,6 @@
 name: Tide Alert
 type: module
 description: 'Provides Alert content type and related configuration. '
-type: module
 package: Tide
 core: 8.x
 dependencies:
@@ -19,8 +18,8 @@ config_devel:
     - field.field.node.alert.scheduled_publishing
     - field.field.node.alert.field_call_to_action
     - field.storage.node.field_alert_type
-    - field.field.node.alert.field_node_primary_site
-    - field.field.node.alert.field_node_site
     - node.type.alert
     - taxonomy.vocabulary.alert_type
   optional:
+    - jsonapi_extras.jsonapi_resource_config.node--alert
+    - views.view.site_alerts

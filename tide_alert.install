@@ -5,19 +5,19 @@
  * Tide Alert module install file..
  */
 
+use Drupal\taxonomy\Entity\Term;
 use Drupal\workflows\Entity\Workflow;
 
 /**
  * Implements hook_install().
  */
 function tide_alert_install() {
-
   if (!\Drupal::service('config.installer')->isSyncing()) {
-
     // Create taxonomy.
     module_load_include('inc', 'tide_core', 'includes/helpers');
     $config_location = [drupal_get_path('module', 'tide_alert') . '/config/install'];
     _tide_import_single_config('taxonomy.vocabulary.alert_type', $config_location);
+    tide_alert_update_8001();
 
     // Enable Editorial workflow if workflow module is enabled.
     $moduleHandler = \Drupal::service('module_handler');
@@ -30,5 +30,22 @@ function tide_alert_install() {
         $editorial_workflow->save();
       }
     }
+  }
+}
+
+/**
+ * Add Notification alert type and Site Alerts view.
+ */
+function tide_alert_update_8001() {
+  Term::create([
+    'vid' => 'alert_type',
+    'name' => 'Notification',
+    'weight' => 100,
+  ])->save();
+
+  if (\Drupal::moduleHandler()->moduleExists('tide_site')) {
+    module_load_include('inc', 'tide_core', 'includes/helpers');
+    $config_location = [drupal_get_path('module', 'tide_alert') . '/config/optional'];
+    _tide_import_single_config('views.view.site_alerts', $config_location);
   }
 }

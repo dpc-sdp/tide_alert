@@ -5,127 +5,79 @@
  * Tide Alert module functionality.
  */
 
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\tide_alert\SiteAlertItemList;
+use Drupal\tide_alert\TideAlertFieldStorageDefinition;
 
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
-function tide_alert_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  // Validate alert before to be saved.
-  if (in_array($form_id, ['node_alert_form', 'node_alert_edit_form'])) {
-    $form['#validate'][] = 'tide_alert_node_validate_if_alert_is_running';
+function tide_alert_form_taxonomy_term_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  if (!\Drupal::moduleHandler()->moduleExists('tide_site')) {
+    return;
   }
+
+  if ($form_id != 'taxonomy_term_sites_form') {
+    return;
+  }
+
+  /** @var \Drupal\taxonomy\TermForm $form_object */
+  $form_object = $form_state->getFormObject();
+  $term = $form_object->getEntity();
+  if ($term->isNew()) {
+    return;
+  }
+
+  $form['footer']['site_alerts'] = [
+    '#type' => 'details',
+    '#open' => TRUE,
+    '#title' => t('Site Alerts and Notifications'),
+  ];
+
+  $form['footer']['site_alerts']['view'] = views_embed_view('site_alerts', 'term_alerts');
 }
 
 /**
- * Implements hook_form_BASE_FORM_ID_alter().
+ * Implements hook_entity_bundle_field_info().
  */
-function tide_alert_form_content_moderation_entity_moderation_form_alter(
-  &$form,
-  FormStateInterface $form_state,
-  $form_id) {
-  $form['#validate'][] = 'tide_alert_moderation_validate_if_alert_is_running';
-}
+function tide_alert_entity_bundle_field_info(EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
+  $fields = [];
 
-/**
- * Validate alert before save, check if there is other alert published by site.
- */
-function tide_alert_node_validate_if_alert_is_running($form, FormStateInterface &$form_state) {
+  if (\Drupal::moduleHandler()->moduleExists('tide_site') && $entity_type->id() === 'taxonomy_term') {
+    $default_settings = [
+      'handler' => 'default:node',
+      'handler_settings' => [
+        'target_bundles' => [
+          'alert' => 'alert',
+        ],
+      ],
+    ];
+    $default_display = [
+      'label' => 'hidden',
+      'region' => 'hidden',
+      'weight' => 100,
+    ];
 
-  $aliasManager = \Drupal::service('path.alias_manager');
-  $siteHelper = \Drupal::service('tide_site.helper');
-
-  $moderation_state = $form_state->getValue("moderation_state");
-  $site = $form_state->getValue('field_node_primary_site');
-  $nid = $form_state->getformObject()->getEntity()->id();
-
-  // Validate alert with others alerts published, before to published.
-  if ($moderation_state[0]['value'] === 'published') {
-    $entity_storage = \Drupal::entityTypeManager()->getStorage('node');
-    $query = $entity_storage->getQuery('AND');
-    $query->condition('type', 'alert');
-    $query->condition('field_node_primary_site', $site[0]['target_id']);
-
-    // Ignore current node in alerts validation.
-    if ($nid) {
-      $query->condition('nid', $nid, '!=');
-    }
-
-    $alert_by_domain_nids = $query->execute();
-
-    if (!empty($alert_by_domain_nids)) {
-      // Get content moderation information for alerts in same primary site.
-      $query = \Drupal::database()->select('content_moderation_state_field_data', 'ms');
-      $query->join('node_field_revision', 'nf', 'nf.nid=ms.content_entity_id AND nf.vid=ms.content_entity_revision_id AND nf.langcode=ms.langcode');
-      $query->fields('ms');
-      $query->fields('nf', ['title']);
-      $query->condition('ms.moderation_state', 'published');
-      $query->condition('nf.nid', array_values($alert_by_domain_nids), 'IN');
-      $alerts = $query->execute()->fetchAllAssoc('content_entity_id');
-
-      if ($alerts && count($alerts)) {
-        $site = $siteHelper->getSiteById($site[0]['target_id']);
-        $alert_published = array_shift($alerts);
-
-        $form_state->setErrorByName('moderation_state', t('There is already an alert published <a href="@alert-link" target="_blank">@alert-title</a> on site @alert-site , un-publish that Alert to be able to publish a new one.',
-            [
-              '@alert-link' => $aliasManager->getAliasByPath('/node/' . $alert_published->id),
-              '@alert-title' => $alert_published->title,
-              '@alert-site' => $site->getName(),
-            ]
-
-          )
-        );
-      }
-    }
-
-  }
-}
-
-/**
- * Validate content moderation alert before save, with alters in the same site.
- */
-function tide_alert_moderation_validate_if_alert_is_running($form, FormStateInterface &$form_state) {
-
-  $aliasManager = \Drupal::service('path.alias_manager');
-  $siteHelper = \Drupal::service('tide_site.helper');
-
-  $moderation_state = $form_state->getValue("new_state");
-  $entity = $form_state->get('entity');
-
-  if ($moderation_state === 'published' && $entity->getEntityTypeId() === 'node' && $entity->bundle() === 'alert') {
-    $entity_storage = \Drupal::entityTypeManager()->getStorage('node');
-    $query = $entity_storage->getQuery('AND');
-    $query->condition('type', 'alert');
-    $query->condition('field_node_primary_site', $entity->field_node_primary_site->getValue()[0]['target_id']);
-    $query->condition('nid', $entity->id(), '!=');
-
-    $alert_by_domain_nids = $query->execute();
-
-    if (!empty($alert_by_domain_nids)) {
-      // Get content moderation information for alerts in same primary site.
-      $query = \Drupal::database()->select('content_moderation_state_field_data', 'ms');
-      $query->join('node_field_revision', 'nf', 'nf.nid=ms.content_entity_id AND nf.vid=ms.content_entity_revision_id AND nf.langcode=ms.langcode');
-      $query->fields('ms');
-      $query->fields('nf', ['title']);
-      $query->condition('ms.moderation_state', 'published');
-      $query->condition('nf.nid', array_values($alert_by_domain_nids), 'IN');
-      $alerts = $query->execute()->fetchAllAssoc('content_entity_id');
-
-      if ($alerts && count($alerts)) {
-        $site = $siteHelper->getSiteById($entity->field_node_primary_site->getValue()[0]['target_id']);
-        $alert_published = array_shift($alerts);
-
-        $form_state->setErrorByName('new_state', t('There is already an alert published <a href="@alert-link" target="_blank">@alert-title</a> on site @alert-site , un-publish that Alert to be able to publish a new one.',
-            [
-              '@alert-link' => $aliasManager->getAliasByPath('/node/' . $alert_published->id),
-              '@alert-title' => $alert_published->title,
-              '@alert-site' => $site->getName(),
-            ]
-
-          )
-        );
-      }
+    if ($bundle === 'sites') {
+      $fields['site_alerts'] = TideAlertFieldStorageDefinition::create('entity_reference')
+        ->setLabel(t('Site Alerts and Notifications'))
+        ->setComputed(TRUE)
+        ->setClass(SiteAlertItemList::class)
+        ->setReadOnly(FALSE)
+        ->setInternal(FALSE)
+        ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+        ->setSettings($default_settings)
+        ->setDisplayOptions('view', $default_display)
+        ->setDisplayOptions('form', $default_display)
+        ->setTargetEntityTypeId('node')
+        ->setTargetBundle('alert')
+        ->setName('site_alerts')
+        ->setDisplayConfigurable('form', FALSE)
+        ->setDisplayConfigurable('view', FALSE);
     }
   }
+
+  return $fields;
 }
