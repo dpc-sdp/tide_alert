@@ -14,8 +14,6 @@ config_devel:
     - core.entity_view_display.node.alert.default
     - core.entity_view_display.node.alert.teaser
     - field.field.node.alert.field_alert_type
-    - field.field.node.alert.scheduled_archiving
-    - field.field.node.alert.scheduled_publishing
     - field.field.node.alert.field_call_to_action
     - field.storage.node.field_alert_type
     - node.type.alert
