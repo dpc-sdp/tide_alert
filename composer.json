@@ -2,8 +2,7 @@
     "name": "dpc-sdp/tide_alert",
     "description": "Alert content type and related configuration for Tide Drupal 8 distribution",
     "type": "drupal-module",
-    "license": "GPL-2.0+",
-    "version": "0.0.1",
+    "license": "GPL-2.0-or-later",
     "require": {
         "dpc-sdp/tide_core": "dev-feature/SDPA-3354_move-call_to_action-config",
         "dpc-sdp/tide_media": "^1.2.6"
