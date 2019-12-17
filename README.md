@@ -1,7 +1,7 @@
 # tide_alert
 Alert content type for Tide distribution
 
-[![CircleCI](https://circleci.com/gh/dpc-sdp/tide_alert.svg?style=svg&circle-token=17df9218f8ba3a997ba21d02ecbbe94c8d386796)](https://circleci.com/gh/dpc-sdp/tide_alert)
+[![CircleCI](https://circleci.com/gh/dpc-sdp/tide_alert.svg?style=svg&circle-token=23a372ae6fe84b9ac307c88c1fcff07fa55f5006)](https://circleci.com/gh/dpc-sdp/tide_alert)
 
 # CONTENTS OF THIS FILE
 
