@@ -5,11 +5,13 @@
  * Tide Alert module functionality.
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\tide_alert\SiteAlertItemList;
 use Drupal\tide_alert\TideAlertFieldStorageDefinition;
+use Drupal\Core\Cache\Cache;
 
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
@@ -80,4 +82,14 @@ function tide_alert_entity_bundle_field_info(EntityTypeInterface $entity_type, $
   }
 
   return $fields;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function tide_alert_node_presave(EntityInterface $entity) {
+  if ($entity->bundle() == 'alert') {
+    $site = $entity->field_node_site->entity;
+    Cache::invalidateTags($site->getCacheTagsToInvalidate());
+  }
 }
