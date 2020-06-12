@@ -93,3 +93,13 @@ function tide_alert_node_presave(EntityInterface $entity) {
     Cache::invalidateTags($site->getCacheTagsToInvalidate());
   }
 }
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete().
+ */
+function tide_alert_node_predelete(EntityInterface $entity) {
+  if ($entity->bundle() == 'alert') {
+    $site = $entity->field_node_site->entity;
+    Cache::invalidateTags($site->getCacheTagsToInvalidate());
+  }
+}
