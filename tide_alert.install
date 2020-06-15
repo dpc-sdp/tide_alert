@@ -30,6 +30,26 @@ function tide_alert_install() {
         $editorial_workflow->save();
       }
     }
+
+    // Enable entity type/bundles for use with scheduled transitions.
+    if (\Drupal::moduleHandler()->moduleExists('scheduled_transitions')) {
+      $config_factory = \Drupal::configFactory();
+      $config = $config_factory->getEditable('scheduled_transitions.settings');
+      $bundles = $config->get('bundles');
+      if ($bundles) {
+        foreach ($bundles as $bundle) {
+          $enabled_bundles[] = $bundle['bundle'];
+        }
+        if (!in_array('alert', $enabled_bundles)) {
+          $bundles[] = ['entity_type' => 'node', 'bundle' => 'alert'];
+          $config->set('bundles', $bundles)->save();
+        }
+      }
+      else {
+        $bundles[] = ['entity_type' => 'node', 'bundle' => 'alert'];
+        $config->set('bundles', $bundles)->save();
+      }
+    }
   }
 }
 
@@ -58,4 +78,28 @@ function tide_alert_update_8002() {
   $config = $config_factory->getEditable('field.field.node.alert.field_call_to_action');
   $config->set('required', FALSE);
   $config->save();
+}
+
+/**
+ * Enable entity type/bundles for use with scheduled transitions.
+ */
+function tide_alert_update_8003() {
+  if (\Drupal::moduleHandler()->moduleExists('scheduled_transitions')) {
+    $config_factory = \Drupal::configFactory();
+    $config = $config_factory->getEditable('scheduled_transitions.settings');
+    $bundles = $config->get('bundles');
+    if ($bundles) {
+      foreach ($bundles as $bundle) {
+        $enabled_bundles[] = $bundle['bundle'];
+      }
+      if (!in_array('alert', $enabled_bundles)) {
+        $bundles[] = ['entity_type' => 'node', 'bundle' => 'alert'];
+        $config->set('bundles', $bundles)->save();
+      }
+    }
+    else {
+      $bundles[] = ['entity_type' => 'node', 'bundle' => 'alert'];
+      $config->set('bundles', $bundles)->save();
+    }
+  }
 }
