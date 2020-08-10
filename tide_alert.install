@@ -103,3 +103,19 @@ function tide_alert_update_8003() {
     }
   }
 }
+
+/**
+ * Alerts should not to be indexed.
+ */
+function tide_alert_update_8004() {
+  if (\Drupal::moduleHandler()->moduleExists('tide_search')) {
+    $config_factory = \Drupal::configFactory();
+    $config = $config_factory->getEditable('search_api.index.node');
+    $data = $config->get('datasource_settings.entity:node.bundles.selected');
+    if (!in_array('alert', $data)) {
+      array_push($data, 'alert');
+      $config->set('datasource_settings.entity:node.bundles.selected', $data)
+        ->save();
+    }
+  }
+}
