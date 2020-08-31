@@ -23,3 +23,10 @@ Include the Tide Alert module in your composer.json file
 ```bash
 composer require dpc-sdp/tide_alert
 ```
+
+# Attribution
+Single Digital Presence offers government agencies an open and flexible toolkit to build websites quickly and cost-effectively.
+<p align="center"><a href="https://www.vic.gov.au/what-single-digital-presence-offers" target="_blank"><img src="docs/SDP_Logo_VicGov_RGB.jpg" alt="SDP logo" height="150"></a></p>
+
+The Department of Premier and Cabinet partnered with Salsa Digital to deliver Single Digital Presence. As long-term supporters of open government approaches, they were integral to the establishment of SDP as an open source platform.
+<p align="center"><a href="https://salsadigital.com.au/" target="_blank"><img src="docs/Salsa.png" alt="Salsa logo" height="150"></a></p>
