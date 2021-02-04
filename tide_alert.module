@@ -86,7 +86,8 @@ function tide_alert_entity_bundle_field_info(EntityTypeInterface $entity_type, $
 }
 
 /**
- * Iterate through the list of linked site taxonomies and invalidate their cache tags.
+ * Iterate through the list of linked site taxonomies 
+ * and invalidate their cache tags.
  */
 function _tide_alert_invalidate_referenced_taxonomies(EntityReferenceFieldItemList $sites) {
   foreach ($sites->referencedEntities() as $site) {
