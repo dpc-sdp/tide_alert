@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\tide_alert\SiteAlertItemList;
 use Drupal\tide_alert\TideAlertFieldStorageDefinition;
 use Drupal\Core\Cache\Cache;
@@ -85,12 +86,20 @@ function tide_alert_entity_bundle_field_info(EntityTypeInterface $entity_type, $
 }
 
 /**
+ * Iterate through the list of linked site taxonomies and invalidate their cache tags.
+ */
+function _tide_alert_invalidate_referenced_taxonomies(EntityReferenceFieldItemList $sites) {
+  foreach ($sites->referencedEntities() as $site) {
+    Cache::invalidateTags($site->getCacheTagsToInvalidate());
+  }
+}
+
+/**
  * Implements hook_ENTITY_TYPE_presave().
  */
 function tide_alert_node_presave(EntityInterface $entity) {
   if ($entity->bundle() == 'alert') {
-    $site = $entity->field_node_site->entity;
-    Cache::invalidateTags($site->getCacheTagsToInvalidate());
+    _tide_alert_invalidate_referenced_taxonomies($entity->field_node_site);
   }
 }
 
@@ -99,7 +108,6 @@ function tide_alert_node_presave(EntityInterface $entity) {
  */
 function tide_alert_node_predelete(EntityInterface $entity) {
   if ($entity->bundle() == 'alert') {
-    $site = $entity->field_node_site->entity;
-    Cache::invalidateTags($site->getCacheTagsToInvalidate());
+    _tide_alert_invalidate_referenced_taxonomies($entity->field_node_site);
   }
 }
