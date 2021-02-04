@@ -99,7 +99,10 @@ function _tide_alert_invalidate_referenced_taxonomies(EntityReferenceFieldItemLi
  */
 function tide_alert_node_presave(EntityInterface $entity) {
   if ($entity->bundle() == 'alert') {
-    _tide_alert_invalidate_referenced_taxonomies($entity->field_node_site);
+    $moderation_state = $entity->get('moderation_state')->value;
+    if ($moderation_state == 'archived' || $moderation_state == 'published') {
+      _tide_alert_invalidate_referenced_taxonomies($entity->field_node_site);
+    }
   }
 }
 
