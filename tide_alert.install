@@ -7,6 +7,7 @@
 
 use Drupal\taxonomy\Entity\Term;
 use Drupal\workflows\Entity\Workflow;
+use Drupal\user\Entity\Role;
 
 /**
  * Install default set of alert types.
@@ -136,6 +137,27 @@ function tide_alert_update_8004() {
       array_push($data, 'alert');
       $config->set('datasource_settings.entity:node.bundles.selected', $data)
         ->save();
+    }
+  }
+}
+
+/**
+ * Revoke permissions from all roles except Admins.
+ */
+function tide_alert_update_8005() {
+  $role_types = [
+    'editor',
+    'approver',
+    'previewer',
+  ];
+
+  foreach ($role_types as $role_type) {
+    $role = Role::load($role_type);
+    if ($role) {
+      $role->revokePermission('create terms in alert_type');
+      $role->revokePermission('edit terms in alert_type');
+      $role->revokePermission('delete terms in alert_type');
+      $role->save();
     }
   }
 }
