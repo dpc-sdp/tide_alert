@@ -47,7 +47,7 @@ class SiteAlertItemList extends EntityReferenceFieldItemList {
     parent::__construct($definition, $name, $parent);
 
     $container = static::getContainer();
-    $this->entityQuery = $container->get('entity.query')->get('node', 'AND');
+    $this->entityQuery = \Drupal::entityQuery('node');
     $this->entityTypeManager = $container->get('entity_type.manager');
   }
 
