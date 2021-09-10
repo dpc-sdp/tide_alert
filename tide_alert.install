@@ -7,18 +7,38 @@
 
 use Drupal\taxonomy\Entity\Term;
 use Drupal\workflows\Entity\Workflow;
+use Drupal\user\Entity\Role;
+
+/**
+ * Install default set of alert types.
+ */
+function _tide_alert_create_default_terms() {
+  $alert_types = [
+    'Emergency',
+    'Fire',
+    'Flood',
+    'Medical',
+    'Lightning',
+    'Pollution',
+    'Heat wave',
+    'Traffic',
+    'Notification',
+  ];
+
+  foreach ($alert_types as $alert_type) {
+    Term::create([
+      'vid' => 'alert_type',
+      'name' => $alert_type,
+      'weight' => 100,
+    ])->save();
+  }
+}
 
 /**
  * Implements hook_install().
  */
 function tide_alert_install() {
   if (!\Drupal::service('config.installer')->isSyncing()) {
-    // Create taxonomy.
-    module_load_include('inc', 'tide_core', 'includes/helpers');
-    $config_location = [drupal_get_path('module', 'tide_alert') . '/config/install'];
-    _tide_import_single_config('taxonomy.vocabulary.alert_type', $config_location);
-    tide_alert_update_8001();
-
     // Enable Editorial workflow if workflow module is enabled.
     $moduleHandler = \Drupal::service('module_handler');
 
@@ -50,6 +70,7 @@ function tide_alert_install() {
         $config->set('bundles', $bundles)->save();
       }
     }
+    _tide_alert_create_default_terms();
   }
 }
 
@@ -116,6 +137,27 @@ function tide_alert_update_8004() {
       array_push($data, 'alert');
       $config->set('datasource_settings.entity:node.bundles.selected', $data)
         ->save();
+    }
+  }
+}
+
+/**
+ * Revoke permissions from all roles except Admins.
+ */
+function tide_alert_update_8005() {
+  $role_types = [
+    'editor',
+    'approver',
+    'previewer',
+  ];
+
+  foreach ($role_types as $role_type) {
+    $role = Role::load($role_type);
+    if ($role) {
+      $role->revokePermission('create terms in alert_type');
+      $role->revokePermission('edit terms in alert_type');
+      $role->revokePermission('delete terms in alert_type');
+      $role->save();
     }
   }
 }
