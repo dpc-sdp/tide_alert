@@ -9,7 +9,7 @@ use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\node\Entity\Node;
 
 /**
- * Class SiteAlertItemList.
+ * Class site alert item list.
  */
 class SiteAlertItemList extends EntityReferenceFieldItemList {
   use ComputedItemListTrait;
