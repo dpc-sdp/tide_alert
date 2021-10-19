@@ -58,6 +58,7 @@ function tide_alert_install() {
       $bundles = $config->get('bundles');
       if ($bundles) {
         foreach ($bundles as $bundle) {
+          $enabled_bundles = [];
           $enabled_bundles[] = $bundle['bundle'];
         }
         if (!in_array('alert', $enabled_bundles)) {
@@ -110,6 +111,7 @@ function tide_alert_update_8003() {
     $config = $config_factory->getEditable('scheduled_transitions.settings');
     $bundles = $config->get('bundles');
     if ($bundles) {
+      $enabled_bundles = [];
       foreach ($bundles as $bundle) {
         $enabled_bundles[] = $bundle['bundle'];
       }
