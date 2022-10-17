@@ -87,7 +87,7 @@ function tide_alert_update_8001() {
 
   if (\Drupal::moduleHandler()->moduleExists('tide_site')) {
     module_load_include('inc', 'tide_core', 'includes/helpers');
-    $config_location = [drupal_get_path('module', 'tide_alert') . '/config/optional'];
+    $config_location = [\Drupal::service('extension.list.module')->getPath('tide_alert') . '/config/optional'];
     _tide_import_single_config('views.view.site_alerts', $config_location);
   }
 }
