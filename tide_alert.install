@@ -167,8 +167,7 @@ function tide_alert_update_8005() {
 /**
  * Hook to update this field settings for all existing projects.
  */
-function tide_alert_update_8006()
-{
+function tide_alert_update_8006() {
   $config = \Drupal::configFactory()->getEditable('field.field.node.alert.field_call_to_action');
   $settings = $config->get('settings');
   $settings['title'] = 2;
