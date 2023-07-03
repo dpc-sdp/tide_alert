@@ -74,6 +74,7 @@ function tide_alert_install() {
     _tide_alert_create_default_terms();
     _tide_alert_scheduled_transitions_settings();
     _tide_alert_should_not_be_indexed();
+    _tide_alert_assign_necessary_permissions();
   }
 }
 
@@ -116,4 +117,55 @@ function _tide_alert_should_not_be_indexed() {
         ->save();
     }
   }
+}
+
+/**
+ * Assign necessary permissions .
+ */
+function _tide_alert_assign_necessary_permissions() {
+  $role_permissions = [
+    'editor' => [
+      'create alert content',
+      'edit any alert content',
+      'edit own alert content',
+      'revert alert revisions',
+      'view alert revisions',
+      'clone alert content'],
+    'site_admin' => [
+      'create alert content',
+      'delete alert revisions',
+      'delete any alert content',
+      'delete own alert content',
+      'edit any alert content',
+      'edit own alert content',
+      'revert alert revisions',
+      'view alert revisions',
+      'clone alert content',
+    ],
+    'approver' => [
+      'create alert content',
+      'delete alert revisions',
+      'delete any alert content',
+      'delete own alert content',
+      'edit any alert content',
+      'edit own alert content',
+      'revert alert revisions',
+      'view alert revisions',
+    ],
+    'contributer' => [
+      'create alert content',
+      'delete alert revisions',
+      'delete any alert content',
+      'delete own alert content',
+      'edit any alert content',
+      'edit own alert content',
+      'revert alert revisions',
+      'view alert revisions',
+      'clone alert content'],
+  ];
+
+  foreach ($role_permissions as $role => $permissions) {
+    user_role_grant_permissions($role, $permissions);
+  }
+
 }
