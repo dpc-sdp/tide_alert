@@ -130,7 +130,7 @@ function _tide_alert_assign_necessary_permissions() {
       'edit own alert content',
       'revert alert revisions',
       'view alert revisions',
-      'clone alert content'
+      'clone alert content',
     ],
     'site_admin' => [
       'create alert content',
@@ -162,7 +162,7 @@ function _tide_alert_assign_necessary_permissions() {
       'edit own alert content',
       'revert alert revisions',
       'view alert revisions',
-      'clone alert content'
+      'clone alert content',
     ],
   ];
 
