@@ -1,6 +1,12 @@
+'add scheduled transitions node alert':
+  title: 'Add scheduled transitions for node alert'
+  description: 'Allows user to add scheduled transitions for alert content type.'
 'create alert content':
   title: 'Create alert content'
   description: 'Allows user to create alert content.'
+'clone alert content':
+  title: 'Clone alert content'
+  description: 'Allows user to clone alert content.'
 'delete alert revisions':
   title: 'Delete alert revisions'
   description: 'Allows user to delete alert revisions.'
@@ -22,6 +28,6 @@
 'view alert revisions':
   title: 'View alert revisions'
   description: 'Allows user to view alert revisions.'
-'clone alert content':
-  title: 'Clone alert content'
-  description: 'Allows user to clone alert content.'
+'view scheduled transitions node alert':
+  title: 'View scheduled transitions for node alert'
+  description: 'Allows user to view all scheduled transitions for alert content type.'
