@@ -6,8 +6,8 @@
  */
 
 use Drupal\taxonomy\Entity\Term;
-use Drupal\workflows\Entity\Workflow;
 use Drupal\user\Entity\Role;
+use Drupal\workflows\Entity\Workflow;
 
 /**
  * Install default set of alert types.
@@ -72,40 +72,16 @@ function tide_alert_install() {
       }
     }
     _tide_alert_create_default_terms();
+    _tide_alert_scheduled_transitions_settings();
+    _tide_alert_should_not_be_indexed();
+    _tide_alert_assign_necessary_permissions();
   }
-}
-
-/**
- * Add Notification alert type and Site Alerts view.
- */
-function tide_alert_update_8001() {
-  Term::create([
-    'vid' => 'alert_type',
-    'name' => 'Notification',
-    'weight' => 100,
-  ])->save();
-
-  if (\Drupal::moduleHandler()->moduleExists('tide_site')) {
-    module_load_include('inc', 'tide_core', 'includes/helpers');
-    $config_location = [\Drupal::service('extension.list.module')->getPath('tide_alert') . '/config/optional'];
-    _tide_import_single_config('views.view.site_alerts', $config_location);
-  }
-}
-
-/**
- * Update link field to be not required field.
- */
-function tide_alert_update_8002() {
-  $config_factory = \Drupal::configFactory();
-  $config = $config_factory->getEditable('field.field.node.alert.field_call_to_action');
-  $config->set('required', FALSE);
-  $config->save();
 }
 
 /**
  * Enable entity type/bundles for use with scheduled transitions.
  */
-function tide_alert_update_8003() {
+function _tide_alert_scheduled_transitions_settings() {
   if (\Drupal::moduleHandler()->moduleExists('scheduled_transitions')) {
     $config_factory = \Drupal::configFactory();
     $config = $config_factory->getEditable('scheduled_transitions.settings');
@@ -130,7 +106,7 @@ function tide_alert_update_8003() {
 /**
  * Alerts should not to be indexed.
  */
-function tide_alert_update_8004() {
+function _tide_alert_should_not_be_indexed() {
   if (\Drupal::moduleHandler()->moduleExists('tide_search')) {
     $config_factory = \Drupal::configFactory();
     $config = $config_factory->getEditable('search_api.index.node');
@@ -144,33 +120,56 @@ function tide_alert_update_8004() {
 }
 
 /**
- * Revoke permissions from all roles except Admins.
+ * Assign necessary permissions .
  */
-function tide_alert_update_8005() {
-  $role_types = [
-    'editor',
-    'approver',
-    'previewer',
+function _tide_alert_assign_necessary_permissions() {
+  $role_permissions = [
+    'editor' => [
+      'create alert content',
+      'edit any alert content',
+      'edit own alert content',
+      'revert alert revisions',
+      'view alert revisions',
+      'clone alert content',
+    ],
+    'site_admin' => [
+      'create alert content',
+      'delete alert revisions',
+      'delete any alert content',
+      'delete own alert content',
+      'edit any alert content',
+      'edit own alert content',
+      'revert alert revisions',
+      'view alert revisions',
+      'clone alert content',
+    ],
+    'approver' => [
+      'create alert content',
+      'delete alert revisions',
+      'delete any alert content',
+      'delete own alert content',
+      'edit any alert content',
+      'edit own alert content',
+      'revert alert revisions',
+      'view alert revisions',
+    ],
+    'contributer' => [
+      'create alert content',
+      'delete alert revisions',
+      'delete any alert content',
+      'delete own alert content',
+      'edit any alert content',
+      'edit own alert content',
+      'revert alert revisions',
+      'view alert revisions',
+      'clone alert content',
+    ],
   ];
 
-  foreach ($role_types as $role_type) {
-    $role = Role::load($role_type);
-    if ($role) {
-      $role->revokePermission('create terms in alert_type');
-      $role->revokePermission('edit terms in alert_type');
-      $role->revokePermission('delete terms in alert_type');
-      $role->save();
+  foreach ($role_permissions as $role => $permissions) {
+    if (Role::load($role) && !is_null(Role::load($role))) {
+      user_role_grant_permissions(Role::load($role)->id(), $permissions);
     }
   }
-}
 
-/**
- * Hook to update this field settings for all existing projects.
- */
-function tide_alert_update_8006() {
-  $config = \Drupal::configFactory()->getEditable('field.field.node.alert.field_call_to_action');
-  $settings = $config->get('settings');
-  $settings['title'] = 2;
-  $config->set('settings', $settings);
-  $config->save();
 }

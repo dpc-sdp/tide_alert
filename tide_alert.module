@@ -5,14 +5,14 @@
  * Tide Alert module functionality.
  */
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\tide_alert\SiteAlertItemList;
 use Drupal\tide_alert\TideAlertFieldStorageDefinition;
-use Drupal\Core\Cache\Cache;
 
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
